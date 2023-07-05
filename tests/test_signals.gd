@@ -9,7 +9,7 @@ class EmitSignalWithString:
 	
 	func _init(emit_value: String, timer: Timer):
 		_emit_value = emit_value
-		timer.timeout.connect(_on_timer_timeout, ConnectFlags.CONNECT_ONE_SHOT)
+		timer.timeout.connect(_on_timer_timeout)
 	
 	func _on_timer_timeout():
 		basic_signal.emit(_emit_value)
@@ -60,7 +60,29 @@ func test_all__returns_emitted_values():
 		emitter2.basic_signal
 	])
 
-	compare_deep(results, ["First", "Second"])
+	assert_eq_deep(results, ["First", "Second"])
+	_cleanup_timers([timer1, timer2])
+
+func test_any__returns_emitted_value():
+	var timer1 := _create_timer(1.0)
+	var timer2 := _create_timer(2.0)
+	var emitter1 := EmitSignalWithString.new("First", timer1)
+	var emitter2 := EmitSignalWithString.new("Second", timer2)
+	watch_signals(timer1)
+	watch_signals(timer2)
+	watch_signals(emitter1)
+	watch_signals(emitter2)
+	timer1.start()
+	timer2.start()
+	
+	var result = await Signals.any([
+		emitter1.basic_signal,
+		emitter2.basic_signal
+	])
+	
+	assert_signal_emitted(emitter1, "basic_signal")
+	assert_signal_not_emitted(emitter2, "basic_signal")
+	assert_eq(result, "First")
 	_cleanup_timers([timer1, timer2])
 
 func _create_timer(wait_time: float)->Timer:
