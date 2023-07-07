@@ -4,6 +4,8 @@ A Godot 4.x plugin which provides a `Signals` class which exposes static
 functions for interacting with lists of Signals, like `Promise.all()` in
 JavaScript.
 
+[View in Godot Asset Library](https://godotengine.org/asset-library/asset/1967)
+
 ## Usage
 
 After importing and enabling the plugin, use one of the static methods attached
